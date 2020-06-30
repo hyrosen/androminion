@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.preference.PreferenceManager;
@@ -55,23 +56,29 @@ public class ThemeSetter {
 	public static void setTheme(Activity act, boolean showActionbar) {
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(act);
+		String themeStr = pref.getString("theme",
+				"androminion-dark");
 		if (showActionbar) {
-			act.setTheme(THEMES_BAR.get(pref.getString("theme",
-					"androminion-dark")));
+			if (!THEMES_BAR.containsKey(themeStr)) {
+				themeStr = "androminion-dark";
+			}
+			act.setTheme(THEMES_BAR.get(themeStr));
 		} else {
-			act.setTheme(THEMES_NOBAR.get(pref.getString("theme",
-					"androminion-dark")));
+			if (!THEMES_NOBAR.containsKey(themeStr)) {
+				themeStr = "androminion-dark";
+			}
+			act.setTheme(THEMES_NOBAR.get(themeStr));
 		}
 	}
 
-	public static void setLanguage(Activity act) {
+	public static void setLanguage(Context context) {
 		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(act);
+				.getDefaultSharedPreferences(context);
 
-		Configuration config = act.getBaseContext().getResources()
+		Configuration config = context.getResources()
 				.getConfiguration();
 
-		String lang = settings.getString(act.getString(R.string.userlang_pref),
+		String lang = settings.getString(context.getString(R.string.userlang_pref),
 				"default");
 		Log.d("AndrominionApplication", "lang set to " + lang);
 		if("default".equals(lang)){
@@ -81,11 +88,10 @@ public class ThemeSetter {
 			Locale locale = new Locale(lang);
 			Locale.setDefault(locale);
 			config.locale = locale;
-			act.getBaseContext()
-					.getResources()
+			context.getResources()
 					.updateConfiguration(
 							config,
-							act.getBaseContext().getResources()
+							context.getResources()
 									.getDisplayMetrics());
 		}
 	}
